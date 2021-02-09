@@ -8,7 +8,7 @@ export default () => ({
         database: process.env.TEST_DATABASE_NAME,
         synchronize: true,
         logging: false,
-        entities: ["./dist/**/*.entity.js", "./src/**/*.entity.ts"],
+        entities: ["./dist/**/*.entity.js"],
     },
     development: {
         type: "mysql",
