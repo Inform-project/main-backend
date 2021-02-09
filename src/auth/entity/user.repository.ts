@@ -1,4 +1,4 @@
-import { EntityRepository, getCustomRepository, Repository } from "typeorm";
+import { EntityRepository, Repository } from "typeorm";
 import { SignupUserDto } from "./user.dto";
 import { User } from "./user.entity";
 
@@ -6,9 +6,9 @@ import { User } from "./user.entity";
 export class UserRepository extends Repository<User> {
     private newUser: User;
 
-    public async signUp(userDto: SignupUserDto): Promise<User> {
+    public async signUp(userDto: SignupUserDto): Promise<void> {
         this.newUser = this.create(userDto);
-        return await this.save(this.newUser);
+        await this.save(this.newUser);
     }
 
     public async findUserByEmail(email: string): Promise<User> {
