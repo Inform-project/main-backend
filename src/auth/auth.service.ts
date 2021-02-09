@@ -1,13 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { SignupUserDto } from './entity/user.dto';
 import { User } from './entity/user.entity';
 import { UserRepository } from './entity/user.repository';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-    constructor(private userRepository: UserRepository) {}
+    constructor(@InjectRepository(User) private userRepository: UserRepository) {}
 
-    public async signUp(body: SignupUserDto): Promise<User> {
+    public async signUp(body: SignupUserDto): Promise<string> {
         if(await this.userRepository.findUserByEmail(body.email)) {
             throw new BadRequestException("Email is already registered");
         }
@@ -15,6 +17,8 @@ export class AuthService {
             throw new BadRequestException("Username is already used");
         }
 
-        return await this.userRepository.signUp(body);
+        body.password = bcrypt.hashSync(body.password, 12);
+        await this.userRepository.signUp(body);
+        return "Sign up success";
     }
 }
