@@ -41,6 +41,6 @@ describe('AuthService', () => {
       expect(userRepository.findUserByEmail).nthCalledWith(1, email);
       expect(userRepository.findUserByUsername).nthCalledWith(1, username);
       expect(userRepository.create).nthCalledWith(1, userData);
-    })
-  })
+    });
+  });
 })
