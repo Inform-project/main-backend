@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignupUserDto } from './entity/user.dto';
 import { User } from './entity/user.entity';
@@ -13,7 +13,7 @@ export class AuthService {
         private jwtService: JwtService
     ) {}
 
-    async signUp(body: SignupUserDto): Promise<string> {
+    public async signUp(body: SignupUserDto): Promise<string> {
         if(await this.userRepository.findUserByEmail(body.email)) {
             throw new BadRequestException("Email is already registered");
         }
@@ -26,7 +26,41 @@ export class AuthService {
         return "Sign up success";
     }
 
-    async validateUser(username: string, password: string): Promise<any> {
+    public async login({ username, id }: { username: string; id: number })
+        : Promise<{ access_token: string; refresh_token: string }> {
+            const access_token = this.generateToken({
+                id,
+                username,
+                type: "access"
+            });
+            const refresh_token = this.generateToken({
+                id,
+                username,
+                type: "refresh"
+            });
+
+            return { access_token, refresh_token };
+    }
+
+    public refresh(token: string): { access_token: string } {
+        const splitToken = token.split(" ");
+        if(splitToken[0] !== "Bearer") {
+            throw new BadRequestException;
+        }
+        const refreshPayload = this.jwtService.verify(splitToken[1]);
+        if(refreshPayload.type !== "refresh") {
+            throw new ForbiddenException;
+        }
+        const access_token = this.generateToken({
+            id: refreshPayload.id,
+            username: refreshPayload.username,
+            type: "access"
+        });
+        
+        return { access_token };
+    }
+
+    public async validateUser(username: string, password: string): Promise<any> {
         const user = await this.userRepository.findUserByUsername(username);
         if(user && bcrypt.compareSync(password, user.password)) {
             const { password, ...result } = user;
@@ -35,10 +69,9 @@ export class AuthService {
         return null;
     }
 
-    async login({ username, id }: { username: string; id: number }) {
-        const payload = { username, sub: id };
-        return {
-            access_token: this.jwtService.sign(payload, { expiresIn: '2h' }),
-        }
+    private generateToken({ id, username, type }: { id: number; username: string; type: string; }) {
+        return this.jwtService.sign({ id, username, type }, {
+            expiresIn: type === "access" ? "2h" : type === "refresh" ? "14d" : 0,
+        });
     }
 }
