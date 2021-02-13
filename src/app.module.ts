@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { HttpExceptionFilter } from './common/http-exception.filter';
+import { PostModule } from './post/post.module';
 import connectionOptions from './config/ormconfig';
 
 @Module({
@@ -18,6 +19,7 @@ import connectionOptions from './config/ormconfig';
       inject: [ConfigService],
     }),
     AuthModule,
+    PostModule,
   ],
   providers: [
     {
