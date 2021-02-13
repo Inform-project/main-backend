@@ -1,5 +1,5 @@
 import { User } from "src/auth/entity/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Post {
@@ -14,6 +14,9 @@ export class Post {
 
     @CreateDateColumn()
     created_at: Date;
+
+    @UpdateDateColumn()
+    updated_at: Date;
 
     @ManyToOne(() => User, user => user.post)
     @JoinColumn({ name: "user_id"})
