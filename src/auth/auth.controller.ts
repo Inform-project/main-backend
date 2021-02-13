@@ -1,5 +1,4 @@
-import { BadRequestException, Body, Controller, Get, GoneException, Headers, Post, Request, UseGuards } from '@nestjs/common';
-import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import { Body, Controller, Get, Headers, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupUserDto } from './entity/user.dto';
 import { LocalAuthGuard } from './guard/local-auth.guard';
