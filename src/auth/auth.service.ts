@@ -13,7 +13,7 @@ export class AuthService {
         private jwtService: JwtService
     ) {}
 
-    public async signUp(body: SignupUserDto): Promise<string> {
+    public async signUp(body: SignupUserDto): Promise<void> {
         if(await this.userRepository.findUserByEmail(body.email)) {
             throw new BadRequestException("Email is already registered");
         }
@@ -23,7 +23,6 @@ export class AuthService {
 
         body.password = bcrypt.hashSync(body.password, 12);
         await this.userRepository.signUp(body);
-        return "Sign up success";
     }
 
     public async login({ username, id }: { username: string; id: number })
