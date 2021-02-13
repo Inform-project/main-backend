@@ -2,7 +2,6 @@ import { BadRequestException, Body, Controller, Get, GoneException, Headers, Pos
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { AuthService } from './auth.service';
 import { SignupUserDto } from './entity/user.dto';
-import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 
 @Controller('auth')
@@ -15,12 +14,6 @@ export class AuthController {
         return "Sign up success";
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get()
-    profile(@Request() req) {
-        return req.user;
-    }
-
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@Request() req) {
@@ -29,15 +22,6 @@ export class AuthController {
 
     @Get('refresh')
     async refresh(@Headers('x-refresh-token') refresh_token: string) {
-        try {
-            return this.authService.refresh(refresh_token);
-        } catch (err) {
-            if (err === TokenExpiredError) {
-                throw new GoneException;
-            } else if (err === JsonWebTokenError) {
-                throw new BadRequestException;
-            }
-            throw err;
-        }
+        return this.authService.refresh(refresh_token);
     }
 }
