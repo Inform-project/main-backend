@@ -1,10 +1,11 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, GoneException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignupUserDto } from './entity/user.dto';
 import { User } from './entity/user.entity';
 import { UserRepository } from './entity/user.repository';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -42,21 +43,30 @@ export class AuthService {
     }
 
     public refresh(token: string): { access_token: string } {
-        const splitToken = token.split(" ");
-        if(splitToken[0] !== "Bearer") {
-            throw new BadRequestException;
+        try {
+            const splitToken = token.split(" ");
+            if(splitToken[0] !== "Bearer") {
+                throw new BadRequestException;
+            }
+            const refreshPayload = this.jwtService.verify(splitToken[1]);
+            if(refreshPayload.type !== "refresh") {
+                throw new ForbiddenException;
+            }
+            const access_token = this.generateToken({
+                id: refreshPayload.id,
+                username: refreshPayload.username,
+                type: "access"
+            });
+            
+            return { access_token };
+        } catch (err) {
+            if (err === TokenExpiredError) {
+                throw new GoneException;
+            } else if (err === JsonWebTokenError) {
+                throw new BadRequestException;
+            }
+            throw err;
         }
-        const refreshPayload = this.jwtService.verify(splitToken[1]);
-        if(refreshPayload.type !== "refresh") {
-            throw new ForbiddenException;
-        }
-        const access_token = this.generateToken({
-            id: refreshPayload.id,
-            username: refreshPayload.username,
-            type: "access"
-        });
-        
-        return { access_token };
     }
 
     public async validateUser(username: string, password: string): Promise<any> {
