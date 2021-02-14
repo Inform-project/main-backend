@@ -8,8 +8,3 @@ export class CreatePostDto {
     @IsString()
     description: string;
 }
-
-export class UpdatePostDto extends CreatePostDto {
-    @IsNumber()
-    id: number;
-}
