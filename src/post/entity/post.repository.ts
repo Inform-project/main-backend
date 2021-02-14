@@ -1,6 +1,6 @@
 import { User } from "src/auth/entity/user.entity";
 import { EntityRepository, Repository } from "typeorm";
-import { CreatePostDto, UpdatePostDto } from "./post.dto";
+import { CreatePostDto } from "./post.dto";
 import { Post } from "./post.entity";
 
 @EntityRepository(Post)
@@ -15,8 +15,8 @@ export class PostRepository extends Repository<Post> {
         await this.save(this.newPost)
     }
 
-    public async updatePost(postDto: UpdatePostDto): Promise<void> {
-        await this.update(postDto.id, postDto);
+    public async updatePost(id: number, postDto: CreatePostDto): Promise<void> {
+        await this.update(id, postDto);
     }
 
     public async findUserByPostId(post_id: number): Promise<number> {
