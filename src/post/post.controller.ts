@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreatePostDto } from './entity/post.dto';
 import { PostService } from './post.service';
@@ -7,6 +7,11 @@ import { PostService } from './post.service';
 export class PostController {
     constructor(private postService: PostService) {}
 
+    @Get()
+    async getAllPost() {
+        return await this.postService.getAllPost();
+    }
+
     @UseGuards(JwtAuthGuard)
     @Post()
     async createPost(@Body() body: CreatePostDto) {
@@ -14,7 +19,6 @@ export class PostController {
         return "Post created";
     }
 
-    // param
     @UseGuards(JwtAuthGuard)
     @Patch(':post_id')
     async updatePost(@Param('post_id') id: number, @Body() body: CreatePostDto) {

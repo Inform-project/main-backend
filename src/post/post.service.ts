@@ -17,6 +17,10 @@ export class PostService {
         @Inject(REQUEST) private request: Request,
     ) {}
 
+    public async getAllPost(): Promise<Post[]> {
+        return await this.postRepository.find();
+    }
+
     public async createPost(body: CreatePostDto): Promise<void> {
         await this.postRepository.createPost(body, await this.getUser());
     }
